@@ -1,0 +1,59 @@
+package MongoFMX;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Componente para MongoRAD'}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  designide,
+  vcl,
+  vclactnband,
+  vclx,
+  xmlrtl,
+  fmx,
+  dbrtl,
+  dsnap,
+  soaprtl,
+  RESTComponents,
+  MongoCore;
+
+contains
+  uAction_MongoQuery in 'source\uAction_MongoQuery.pas',
+  uEditMongo in 'source\uEditMongo.pas',
+  uLMongoListBox in 'source\uLMongoListBox.pas',
+  uMongo_Tipificacoes in 'source\uMongo_Tipificacoes.pas',
+  uMongoDocument in 'source\uMongoDocument.pas',
+  uMongoListBox in 'source\uMongoListBox.pas',
+  uMongoListBoxItem in 'source\uMongoListBoxItem.pas',
+  uMongoQuery in 'source\uMongoQuery.pas',
+  uComboBoxMongo in 'source\uComboBoxMongo.pas',
+  uCheckBoxMongo in 'source\uCheckBoxMongo.pas',
+  uGroupBoxMongo in 'source\uGroupBoxMongo.pas';
+
+end.
+

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2016/12/03 23:40:30.594,=rtl.dcp</Transaction>
+    <Transaction>2016/12/03 23:41:22.303,C:\DMongo\MongoCore.dproj=C:\Users\amari\Documents\Embarcadero\Studio\Projects\Package1.dproj</Transaction>
+    <Transaction>2016/12/03 23:42:20.776,=C:\DMongo\source\uConexaoMongo.pas</Transaction>
+    <Transaction>2016/12/03 23:42:27.757,=C:\DMongo\source\UCtrlMongo.pas</Transaction>
+    <Transaction>2016/12/03 23:42:38.154,=C:\DMongo\source\uMongoRelatorio.pas</Transaction>
+    <Transaction>2016/12/03 23:43:09.114,=vcl.dcp</Transaction>
+    <Transaction>2016/12/03 23:43:09.126,=RESTComponents.dcp</Transaction>
+  </Transactions>
+</BorlandProject>

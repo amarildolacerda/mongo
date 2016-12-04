@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{74BA3904-4DFF-44B1-AEEC-52EEE9CC8CCB}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MongoCore.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="MongoFMX.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Samples\VCL\Componentes\Componentes.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MongoCore">
+        <MSBuild Projects="MongoCore.dproj"/>
+    </Target>
+    <Target Name="MongoCore:Clean">
+        <MSBuild Projects="MongoCore.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MongoCore:Make">
+        <MSBuild Projects="MongoCore.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MongoFMX">
+        <MSBuild Projects="MongoFMX.dproj"/>
+    </Target>
+    <Target Name="MongoFMX:Clean">
+        <MSBuild Projects="MongoFMX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MongoFMX:Make">
+        <MSBuild Projects="MongoFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Componentes">
+        <MSBuild Projects="Samples\VCL\Componentes\Componentes.dproj"/>
+    </Target>
+    <Target Name="Componentes:Clean">
+        <MSBuild Projects="Samples\VCL\Componentes\Componentes.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Componentes:Make">
+        <MSBuild Projects="Samples\VCL\Componentes\Componentes.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MongoCore;MongoFMX;Componentes"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MongoCore:Clean;MongoFMX:Clean;Componentes:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MongoCore:Make;MongoFMX:Make;Componentes:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
