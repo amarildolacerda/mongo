@@ -24,6 +24,7 @@ package MongoFMX;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
+{$DEFINE FMX}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Componente para MongoRAD'}
 {$IMPLICITBUILD ON}
@@ -46,14 +47,12 @@ contains
   uAction_MongoQuery in 'source\uAction_MongoQuery.pas',
   uEditMongo in 'source\uEditMongo.pas',
   uLMongoListBox in 'source\uLMongoListBox.pas',
-  uMongo_Tipificacoes in 'source\uMongo_Tipificacoes.pas',
-  uMongoDocument in 'source\uMongoDocument.pas',
   uMongoListBox in 'source\uMongoListBox.pas',
   uMongoListBoxItem in 'source\uMongoListBoxItem.pas',
-  uMongoQuery in 'source\uMongoQuery.pas',
   uComboBoxMongo in 'source\uComboBoxMongo.pas',
   uCheckBoxMongo in 'source\uCheckBoxMongo.pas',
-  uGroupBoxMongo in 'source\uGroupBoxMongo.pas';
+  uGroupBoxMongo in 'source\uGroupBoxMongo.pas',
+  uImageMongo in 'source\uImageMongo.pas';
 
 end.
 

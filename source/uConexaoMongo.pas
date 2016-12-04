@@ -1,3 +1,17 @@
+{ *************************************************************************** }
+{ Data:  04/12/2016                                                           }
+{ Resenha:
+{ *************************************************************************** }
+{ Licença segue a mesma estabelecida no código original determinada pelo seu  }
+{ autor                                                                       }
+{                                                                             }
+{ *************************************************************************** }
+{
+ Alterações:
+     + incluido destructor para liberar a variavel
+       FMongoWire (corrige memoryLeak) - por: AL;
+
+}
 unit uConexaoMongo;
 
 interface
@@ -46,7 +60,7 @@ end;
 destructor TMongoConexao.destroy;
 begin
   if assigned(FMongoWire) then
-    FMongoWire.Free;
+    FMongoWire.DisposeOf;
   inherited;
 end;
 

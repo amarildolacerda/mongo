@@ -6,10 +6,19 @@
         <Projects Include="MongoCore.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="MongoVCL.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="MongoFMX.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="MongoVCLAniversary.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="Samples\VCL\Componentes\Componentes.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Samples\Firemonkey\CRUD_COM_IMAGENS\Project1.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -29,6 +38,15 @@
     <Target Name="MongoCore:Make">
         <MSBuild Projects="MongoCore.dproj" Targets="Make"/>
     </Target>
+    <Target Name="MongoVCL">
+        <MSBuild Projects="MongoVCL.dproj"/>
+    </Target>
+    <Target Name="MongoVCL:Clean">
+        <MSBuild Projects="MongoVCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MongoVCL:Make">
+        <MSBuild Projects="MongoVCL.dproj" Targets="Make"/>
+    </Target>
     <Target Name="MongoFMX">
         <MSBuild Projects="MongoFMX.dproj"/>
     </Target>
@@ -37,6 +55,15 @@
     </Target>
     <Target Name="MongoFMX:Make">
         <MSBuild Projects="MongoFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MongoVCLAniversary">
+        <MSBuild Projects="MongoVCLAniversary.dproj"/>
+    </Target>
+    <Target Name="MongoVCLAniversary:Clean">
+        <MSBuild Projects="MongoVCLAniversary.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MongoVCLAniversary:Make">
+        <MSBuild Projects="MongoVCLAniversary.dproj" Targets="Make"/>
     </Target>
     <Target Name="Componentes">
         <MSBuild Projects="Samples\VCL\Componentes\Componentes.dproj"/>
@@ -47,14 +74,23 @@
     <Target Name="Componentes:Make">
         <MSBuild Projects="Samples\VCL\Componentes\Componentes.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Project1">
+        <MSBuild Projects="Samples\Firemonkey\CRUD_COM_IMAGENS\Project1.dproj"/>
+    </Target>
+    <Target Name="Project1:Clean">
+        <MSBuild Projects="Samples\Firemonkey\CRUD_COM_IMAGENS\Project1.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project1:Make">
+        <MSBuild Projects="Samples\Firemonkey\CRUD_COM_IMAGENS\Project1.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="MongoCore;MongoFMX;Componentes"/>
+        <CallTarget Targets="MongoCore;MongoVCL;MongoFMX;MongoVCLAniversary;Componentes;Project1"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="MongoCore:Clean;MongoFMX:Clean;Componentes:Clean"/>
+        <CallTarget Targets="MongoCore:Clean;MongoVCL:Clean;MongoFMX:Clean;MongoVCLAniversary:Clean;Componentes:Clean;Project1:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="MongoCore:Make;MongoFMX:Make;Componentes:Make"/>
+        <CallTarget Targets="MongoCore:Make;MongoVCL:Make;MongoFMX:Make;MongoVCLAniversary:Make;Componentes:Make;Project1:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

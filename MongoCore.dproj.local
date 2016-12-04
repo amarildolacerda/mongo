@@ -1,12 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2016/12/03 23:40:30.594,=rtl.dcp</Transaction>
-    <Transaction>2016/12/03 23:41:22.303,C:\DMongo\MongoCore.dproj=C:\Users\amari\Documents\Embarcadero\Studio\Projects\Package1.dproj</Transaction>
-    <Transaction>2016/12/03 23:42:20.776,=C:\DMongo\source\uConexaoMongo.pas</Transaction>
-    <Transaction>2016/12/03 23:42:27.757,=C:\DMongo\source\UCtrlMongo.pas</Transaction>
-    <Transaction>2016/12/03 23:42:38.154,=C:\DMongo\source\uMongoRelatorio.pas</Transaction>
-    <Transaction>2016/12/03 23:43:09.114,=vcl.dcp</Transaction>
-    <Transaction>2016/12/03 23:43:09.126,=RESTComponents.dcp</Transaction>
+	<Transactions>
+    <Transaction>2016/12/03 23:40:30.000.594,=rtl.dcp</Transaction>
+    <Transaction>2016/12/03 23:41:22.000.303,C:\DMongo\MongoCore.dproj=C:\Users\amari\Documents\Embarcadero\Studio\Projects\Package1.dproj</Transaction>
+    <Transaction>2016/12/03 23:42:20.000.776,=C:\DMongo\source\uConexaoMongo.pas</Transaction>
+    <Transaction>2016/12/03 23:42:27.000.757,=C:\DMongo\source\UCtrlMongo.pas</Transaction>
+    <Transaction>2016/12/03 23:42:38.000.154,=C:\DMongo\source\uMongoRelatorio.pas</Transaction>
+    <Transaction>2016/12/03 23:43:09.000.114,=vcl.dcp</Transaction>
+    <Transaction>2016/12/03 23:43:09.000.126,=RESTComponents.dcp</Transaction>
+    <Transaction>2016/12/04 00:17:15.000.043,=C:\Git\Mongo\Unit1.pas</Transaction>
+    <Transaction>2016/12/04 00:17:30.000.314,C:\Git\Mongo\Unit1.pas=C:\Git\Mongo\source\mongo.interf.pas</Transaction>
+    <Transaction>2016/12/04 00:39:53.000.834,=C:\Git\Mongo\Unit1.pas</Transaction>
+    <Transaction>2016/12/04 00:40:03.000.978,C:\Git\Mongo\Unit1.pas=C:\Git\Mongo\source\mongo.types.pas</Transaction>
+    <Transaction>2016/12/04 02:30:56.000.910,=C:\Git\Mongo\source\uMongoQuery.pas</Transaction>
+    <Transaction>2016/12/04 02:31:26.000.235,C:\Git\Mongo\source\uMongoQuery.pas=</Transaction>
+    <Transaction>2016/12/04 10:10:57.000.313,=C:\Git\Mongo\source\uMongo_Tipificacoes.pas</Transaction>
+    <Transaction>2016/12/04 10:28:43.000.675,=dsnap.dcp</Transaction>
+    <Transaction>2016/12/04 10:54:22.000.331,=fmx.dcp</Transaction>
   </Transactions>
 </BorlandProject>

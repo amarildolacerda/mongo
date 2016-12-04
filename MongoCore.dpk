@@ -24,18 +24,26 @@ package MongoCore;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
+{$DEFINE VCL}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
   designide,
-  RESTComponents;
+  RESTComponents,
+  dsnap,
+  fmx;
 
 contains
   uConexaoMongo in 'source\uConexaoMongo.pas',
+  uMongoQuery in 'source\uMongoQuery.pas',
+  uMongoDocument in 'source\uMongoDocument.pas',
   uMongoDiversos in 'source\uMongoDiversos.pas',
   UCtrlMongo in 'source\UCtrlMongo.pas',
-  uMongoRelatorio in 'source\uMongoRelatorio.pas';
+  uMongoRelatorio in 'source\uMongoRelatorio.pas',
+  mongo.interf in 'source\mongo.interf.pas',
+  mongo.types in 'source\mongo.types.pas',
+  uMongo_Tipificacoes in 'source\uMongo_Tipificacoes.pas';
 
 end.

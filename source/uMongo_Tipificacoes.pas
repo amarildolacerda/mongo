@@ -1,12 +1,22 @@
-unit uMongo_Tipificacoes;
+{ *************************************************************************** }
+{ Data:  04/12/2016                                                           }
+{ Resenha:
+{ *************************************************************************** }
+{ Licença segue a mesma estabelecida no código original determinada pelo seu  }
+{ autor                                                                       }
+{                                                                             }
+{ *************************************************************************** }
+{
+ Alterações:
+ }
+unit uMongo_Tipificacoes;
 
 interface
 
 uses
-  System.SysUtils;
+  mongo.types, System.SysUtils;
 
-type
-  TCampo = (Texto, Numerico, Moeda, DataHora, Booleano);
+
 
 type
   TTipificacao = class

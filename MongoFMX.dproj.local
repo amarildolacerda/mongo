@@ -7,7 +7,10 @@
     <Transaction>2016/11/25 22:25:50.000.836,C:\Componentes\TMongoComponents\Unit1.pas=C:\Componentes\TMongoComponents\source\uGroupBoxMongo.pas</Transaction>
     <Transaction>2016/11/29 22:02:26.000.175,=soaprtl.dcp</Transaction>
     <Transaction>2016/11/30 19:37:41.000.958,=C:\Projetos\Componentes\TMongoComponents\source\UCtrlMongo.pas</Transaction>
-    <Transaction>2016/12/03 23:40:38.831,C:\DMongo\MongoCore.dproj=C:\DMongo\MongoFMX.dproj</Transaction>
-    <Transaction>2016/12/03 23:41:04.145,C:\DMongo\MongoFMX.dproj=C:\DMongo\MongoCore.dproj</Transaction>
+    <Transaction>2016/12/03 23:40:38.000.831,C:\DMongo\MongoCore.dproj=C:\DMongo\MongoFMX.dproj</Transaction>
+    <Transaction>2016/12/03 23:41:04.000.145,C:\DMongo\MongoFMX.dproj=C:\DMongo\MongoCore.dproj</Transaction>
+    <Transaction>2016/12/04 01:59:07.000.106,C:\Git\Mongo\source\uEditMongo.pas=C:\Git\Mongo\source\mongo.VCL.MongoEdit.pas</Transaction>
+    <Transaction>2016/12/04 02:36:32.000.592,C:\Git\Mongo\source\mongo.VCL.MongoEdit.pas=</Transaction>
+    <Transaction>2016/12/04 10:10:44.000.072,C:\Git\Mongo\source\uMongo_Tipificacoes.pas=</Transaction>
   </Transactions>
 </BorlandProject>

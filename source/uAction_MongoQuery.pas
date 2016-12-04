@@ -1,9 +1,29 @@
+{ *************************************************************************** }
+{ Autor:                                                                      }
+{ Data:  04/12/2016                                                           }
+{ Resenha:
+{ *************************************************************************** }
+{ Licença segue a mesma estabelecida no código original determinada pelo seu  }
+{ autor                                                                       }
+{                                                                             }
+{ *************************************************************************** }
+{
+ Alterações:
+      + incluidor checagem diretiva FMX (por: AL)
+        projetos FMX precisam indicar que vão carregar a biblioteca FMX
+}
 unit uAction_MongoQuery;
 
 interface
 
+{$I mongo.inc}
+{$ifndef FMX}
+     'codigo não pode ser utilizado em projetos VCL}
+{$endif}
+
 uses
-  FMX.ActnList, System.Actions, System.SysUtils, uMongoQuery, FMX.Forms, FMX.Layouts, FMX.Dialogs;
+  {$ifdef FMX} FMX.ActnList, FMX.Forms, FMX.Dialogs,{$else} VCL.ActnList, VCL.Forms,VCL.Dialogs,  {$endif} System.Actions, System.SysUtils, uMongoQuery,
+   mongo.ui;
 
 type
   TMongoInsert = class(TAction)

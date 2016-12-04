@@ -1,3 +1,19 @@
+{ *************************************************************************** }
+{ Data:  04/12/2016 }
+{ Resenha:
+  { *************************************************************************** }
+{ Licença segue a mesma estabelecida no código original determinada pelo seu }
+{ autor }
+{ }
+{ *************************************************************************** }
+{
+
+  //  Alterações:
+  //     + 04/12/2016 Adicionado suporte a IMongoChecked
+  //                  incluido TMongoOperacao para diferenciar o tipo de operação ao preencher dados do documento
+  //                  incluido suporte para IMongoJSON
+}
+
 {$A8,B-,C+,D+,E-,F-,G+,H+,I+,J-,K-,L+,M-,N-,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
 {$MINSTACKSIZE $00004000}
 {$MAXSTACKSIZE $00100000}
@@ -83,56 +99,68 @@ unit uMongoQuery;
 interface
 
 uses
-  System.SysUtils, System.Classes, mongoWire, bsonDoc, bsonUtils, FMX.Forms,
-  uEditMongo, uMongoDocument, System.Generics.Collections, FMX.Layouts, uConexaoMongo,
-  FMX.ListBox, uMongo_Tipificacoes, System.Variants, DataSnap.DBClient, Data.DB,
-  Generics.Collections, uMongoListBox, REST.JSON;
+  System.SysUtils, System.Classes, mongoWire, bsonDoc, bsonUtils,
+  mongo.interf,
+{$IFDEF FMX}
+  FMX.Layouts,
+  FMX.Forms,
+  FMX.ListBox, {todo: nao é para estar aqui... reescrever sem esta dependencia}
+{$ELSE}
+  VCL.StdCtrls,
+{$ENDIF}
+  mongo.UI,
+  mongo.types,
+  uMongoDocument, System.Generics.Collections,
+  uConexaoMongo,
+  uMongo_Tipificacoes, System.Variants,
+  DataSnap.DBClient, Data.DB,
+  Generics.Collections, REST.JSON;
 
 type
   TMongoQuery = class(TComponent)
   strict private
-      function GetSequence(AMongoCampo: string) : Int64;
-    private
-      FMongoConexao : TMongoConexao;
-      FAtivar : Boolean;
-      FCollection : String;
-      FMongoQuery : TMongoWireQuery;
-      FDataSet : TClientDataSet;
-      FListBox: TListBox;
-      procedure setAtivar(const Value: boolean);
-      procedure preencherMongoDoc(Layout : TLayout; var MongoDoc : TMongoDocument);
-      procedure criarDataSetLayout(Layout : TLayout);
-      procedure criarDataSetLista(Lista : TList<String>);
-      function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
-    public
-       FMongoWireQuery : TMongoWireQuery;
-       constructor Create(AOwner: TComponent); override;
+    function GetSequence(AMongoCampo: string): Int64;
+  private
+    FMongoConexao: TMongoConexao;
+    FAtivar: Boolean;
+    FCollection: String;
+    FMongoQuery: TMongoWireQuery;
+    FDataSet: TClientDataSet;
+    FListBox: TListBox;
+    procedure setAtivar(const Value: Boolean);
+    procedure preencherMongoDoc(Layout: TLayout; var MongoDoc: TMongoDocument; MongoOperacao: TMongoOperacao);
+    procedure criarDataSetLayout(Layout: TLayout);
+    procedure criarDataSetLista(Lista: TList<String>);
+    function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
+  public
+    FMongoWireQuery: TMongoWireQuery;
+    constructor Create(AOwner: TComponent); override;
 
-       function InserirLayout(Layout : TLayout) : Boolean;
-       function UpdateLayout(Layout : TLayout) : Boolean;
-       function DeleteLayout(Layout : TLayout) : Boolean;
-       function SelectLayout(Layout : TLayout) : Boolean;
-       function SelectEditLayout(Layout : TLayout) : Boolean;
-       function LimparLayout(Layout : TLayout) : Boolean;
+    function InserirLayout(Layout: TLayout): Boolean;
+    function UpdateLayout(Layout: TLayout): Boolean;
+    function DeleteLayout(Layout: TLayout): Boolean;
+    function SelectLayout(Layout: TLayout): Boolean;
+    function SelectEditLayout(Layout: TLayout): Boolean;
+    function LimparLayout(Layout: TLayout): Boolean;
 
-       procedure buscaFoneticaDataSet(Texto, Index, Campo : String);
-       procedure buscaConteudo(Texto, Campo : String);
-       procedure listaListBox(CampoExibir : String);
+    procedure buscaFoneticaDataSet(Texto, Index, Campo: String);
+    procedure buscaConteudo(Texto, Campo: String);
+    procedure listaListBox(CampoExibir: String);
 
-       function getCamposJsonString(json, value:String): String;
+    function getCamposJsonString(JSON, Value: String): String;
 
-       function Insert(aJson : String) : Boolean;
-       function Update(aJsonWhere : String; aJsonDoc : String) : Boolean;
-       function Remove(aJson : String) : Boolean;
-       function Find(aJson : String) : String;
-       function Command(aJson : String) : String;
-    published
-      property MongoConexao : TMongoConexao read FMongoConexao write FMongoConexao;
-      property Ativar : Boolean read FAtivar write setAtivar;
-      property Collection : String read FCollection write FCollection;
-      property MongoQuery : TMongoWireQuery read FMongoQuery write FMongoQuery;
-      property DataSet : TClientDataSet read FDataSet write FDataSet;
-      property ListBox : TListBox read FListBox write FListBox;
+    function Insert(aJson: String): Boolean;
+    function Update(aJsonWhere: String; aJsonDoc: String): Boolean;
+    function Remove(aJson: String): Boolean;
+    function Find(aJson: String): String;
+    function Command(aJson: String): String;
+  published
+    property MongoConexao: TMongoConexao read FMongoConexao write FMongoConexao;
+    property Ativar: Boolean read FAtivar write setAtivar;
+    property Collection: String read FCollection write FCollection;
+    property MongoQuery: TMongoWireQuery read FMongoQuery write FMongoQuery;
+    property DataSet: TClientDataSet read FDataSet write FDataSet;
+    property ListBox: TListBox read FListBox write FListBox;
   end;
 
 procedure Register;
@@ -140,8 +168,9 @@ procedure Register;
 implementation
 
 uses
-  System.JSON, Winapi.Windows, uMongoListBoxItem, uComboBoxMongo, uImageMongo,
-  UCtrlMongo;
+  System.JSON, Winapi.Windows,
+  {uMongoListBoxItem,}
+  uCtrlMongo;
 
 procedure Register;
 begin
@@ -154,23 +183,24 @@ begin
   FCollection := 'MinhaCollection';
 end;
 
-procedure TMongoQuery.setAtivar(const Value: boolean);
+procedure TMongoQuery.setAtivar(const Value: Boolean);
 begin
   FAtivar := Value;
 end;
 
-function TMongoQuery.InserirLayout(Layout: TLayout) : Boolean;
+function TMongoQuery.InserirLayout(Layout: TLayout): Boolean;
 var
-  d : IBSONDocument;
-  MongoDoc : TMongoDocument;
-  i : Integer;
+  d: IBSONDocument;
+  MongoDoc: TMongoDocument;
+  i: Integer;
 begin
+  assert(assigned(FMongoConexao), 'Não definiu a conexão para a query');
   Result := True;
   d := nil;
   MongoDoc := TMongoDocument.Create;
   try
     try
-      preencherMongoDoc(Layout, MongoDoc);
+      preencherMongoDoc(Layout, MongoDoc, moInsert);
       MongoDoc.convertBSON(d);
       FMongoConexao.FMongoWire.Insert(FCollection, d);
     except
@@ -181,92 +211,109 @@ begin
   end;
 end;
 
-function TMongoQuery.LimparLayout(Layout : TLayout) : Boolean;
+function TMongoQuery.LimparLayout(Layout: TLayout): Boolean;
 var
-  i : Integer;
+  i: Integer;
 begin
-  for i:= 0 to Pred(Layout.ControlsCount) do
+  for i := 0 to Pred(Layout.ControlsCount) do
   begin
-    if (Layout.Controls[i] is TEditMongo) then
+    if Supports(Layout.Controls[i], IMongoText) then
+      (Layout.Controls[i] as IMongoText).Text := '';
+
+    if Supports(Layout.Controls[i], IMongoBitmap) then
     begin
-      TEditMongo(Layout.Controls[i]).Text := '';
+      (Layout.Controls[i] as IMongoBitmap).clear;
     end;
-     if (Layout.Controls[i] is TImageMongo) then
-    begin
-      TImageMongo(Layout.Controls[i]).Bitmap := nil;
-    end;
-    if (Layout.Controls[i] is TComboBoxMongo) then
-    begin
-      TComboBoxMongo(Layout.Controls[i]).ItemIndex := -1;
-      TComboBoxMongo(Layout.Controls[i]).Text := '';
-    end;
+
+    if Supports(Layout.Controls[i], IMongoIndexList) then
+      with Layout.Controls[i] as IMongoIndexList do
+      begin
+        ItemIndex := -1;
+        Text := '';
+      end;
+
+    if Supports(Layout.Controls[i], IMongoChecked) then
+      (Layout.Controls[i] as IMongoChecked).Checked := False;
+
   end;
 end;
 
-procedure TMongoQuery.listaListBox(CampoExibir : String);
+procedure TMongoQuery.listaListBox(CampoExibir: String);
 var
-  d : IBSONDocument;
-  q : TMongoWireQuery;
-  Aux, Aux1, Aux2 : String;
-  Item : TMongoListBoxItem;
+  d: IBSONDocument;
+  q: TMongoWireQuery;
+  Aux, Aux1, Aux2: String;
+  // Item: TMongoListBoxItem;
+  { todo -oAmarildo Lacerda -cImportante: se incluir este codigo passa a ter dependencia da FMX - Ver como resolver }
 begin
-   d := BSON;
-   q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
-   try
-     q.Query(FCollection,BSON([]));
-     FListBox.Items.Clear;
-     while q.Next(d) do
-     begin
+  d := BSON;
+  q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
+  try
+    q.Query(FCollection, BSON([]));
+    FListBox.Items.clear;
+    while q.Next(d) do
+    begin
 
       Aux := BsonToJson(d);
       Aux1 := Copy(Aux, 1, Length(Aux));
       Aux2 := Copy(d[CampoExibir], 1, Length(d[CampoExibir]));
 
-      Item := TMongoListBoxItem.Create(FListBox);
-      Item.Text := (Aux2);
-      Item.JSON := Aux1;
-      FListBox.AddObject(Item);
-     end;
-   finally
+{$IFDEF FMX}
+      { Item := TMongoListBoxItem.Create(FListBox);
+        Item.Text := (Aux2);
+        Item.JSON := Aux1;
+        FListBox.AddObject(Item);
+      }
+{$ELSE}
+      FListBox.Items.Add(Aux2);
+      if Supports(FListBox, IMongoJSON) then
+        (FListBox as IMongoJSON).JSON := Aux1;
+{$ENDIF}
+    end;
+  finally
     q.Destroy;
-   end;
+  end;
 end;
 
-function TMongoQuery.UpdateLayout(Layout: TLayout) : Boolean;
+function TMongoQuery.UpdateLayout(Layout: TLayout): Boolean;
 var
-  d, dChave : IBSONDocument;
-  MongoDoc : TMongoDocument;
-  i : Integer;
+  d, dChave: IBSONDocument;
+  MongoDoc: TMongoDocument;
+  i: Integer;
 begin
   Result := True;
   d := nil;
   MongoDoc := TMongoDocument.Create;
   try
     try
-      preencherMongoDoc(Layout, MongoDoc);
+      preencherMongoDoc(Layout, MongoDoc, moUpdate);
       MongoDoc.convertBSON(d);
       MongoDoc.convertCampoChave(dChave);
       FMongoConexao.FMongoWire.Update(FCollection, dChave, d);
     except
-      Result := False;
+      begin
+        { DONE: se houver erro não mostra para o usuario - seria interessante mostrar para orientar o que fazer }
+        Result := False;
+        raise;
+      end;
     end;
   finally
     MongoDoc.Free;
   end;
 end;
 
-function TMongoQuery.DeleteLayout(Layout: TLayout) : Boolean;
+function TMongoQuery.DeleteLayout(Layout: TLayout): Boolean;
 var
-  d, dChave : IBSONDocument;
-  MongoDoc : TMongoDocument;
-  i : Integer;
+  d, dChave: IBSONDocument;
+  MongoDoc: TMongoDocument;
+  i: Integer;
 begin
   Result := True;
   d := nil;
   MongoDoc := TMongoDocument.Create;
   try
     try
-      preencherMongoDoc(Layout, MongoDoc);
+      preencherMongoDoc(Layout, MongoDoc, moDelete);
       MongoDoc.convertCampoChave(dChave);
       FMongoConexao.FMongoWire.Delete(FCollection, dChave);
     except
@@ -277,45 +324,55 @@ begin
   end;
 end;
 
-function TMongoQuery.SelectEditLayout(Layout : TLayout) : Boolean;
+function TMongoQuery.SelectEditLayout(Layout: TLayout): Boolean;
 var
-  d, dChave : IBSONDocument;
-  MongoDoc : TMongoDocument;
-  i : Integer;
-  Edit : TEditMongo;
-  ComboBox : TComboBoxMongo;
-  Image : TImageMongo;
+  d, dChave: IBSONDocument;
+  MongoDoc: TMongoDocument;
+  i: Integer;
+  suppMongoControl: Boolean;
+  mongoControl: IMongoControl;
+  // Edit: TEditMongo;
+  // ComboBox: TComboBoxMongo;
+  // Image: TImageMongo;
 begin
   MongoDoc := TMongoDocument.Create;
   try
     try
-      preencherMongoDoc(Layout, MongoDoc);
+      preencherMongoDoc(Layout, MongoDoc, moBrowse);
       MongoDoc.convertCampoChave(dChave);
-      d:=FMongoConexao.FMongoWire.Get(FCollection,dChave);
-      for i:= 0 to Pred(Layout.ControlsCount) do
+      d := FMongoConexao.FMongoWire.Get(FCollection, dChave);
+      for i := 0 to Pred(Layout.ControlsCount) do
       begin
-
-        //Edit
-        if (Layout.Controls[i] is TEditMongo) then
+        suppMongoControl := Supports(Layout.Controls[i], IMongoControl);
+        if suppMongoControl then
+          mongoControl := Layout.Controls[i] as IMongoControl;
+        // Edit
+        if Supports(Layout.Controls[i], IMongoText) and suppMongoControl then
         begin
-          Edit := TEditMongo(Layout.Controls[i]);
-          Edit.Text := VarToStr(d[Edit.MongoCampo]);
+          (Layout.Controls[i] as IMongoText).Text := VarToStr(d[(mongoControl).MongoCampo]);
         end;
 
-        //ComboBox
-        if (Layout.Controls[i] is TComboBoxMongo) then
-        begin
-          ComboBox := TComboBoxMongo(Layout.Controls[i]);
-          ComboBox.Text := VarToStr(d[ComboBox.MongoCampo]);
-          ComboBox.ItemIndex := ComboBox.Items.IndexOf(ComboBox.Text);
-        end;
+        // IndexList Interface  ( Combobox)
+        if Supports(Layout.Controls[i], IMongoIndexList) and suppMongoControl then
+          with Layout.Controls[i] as IMongoIndexList do
+          begin
+            Text := VarToStr(d[mongoControl.MongoCampo]);
+            ItemIndex := IndexOf(Text);
+          end;
 
-        //Imagem
-        if (Layout.Controls[i] is TImageMongo) then
-        begin
-          Image := TImageMongo(Layout.Controls[i]);
-          Image.setDataImage(VarToStr(d[Image.MongoCampo]));
-        end;
+        // Imagem  Interface
+        if Supports(Layout.Controls[i], IMongoBitmap) and suppMongoControl then
+          with Layout.Controls[i] as IMongoBitmap do
+          begin
+            setDataImage(VarToStr(d[MongoCampo]));
+          end;
+
+        // checked Interface  (checkbox)
+        if Supports(Layout.Controls[i], IMongoChecked) then
+          (Layout.Controls[i] as IMongoChecked).Checked := StrToBoolDef(d[(Layout.Controls[i] as IMongoChecked).MongoCampo], False);
+        if Supports(Layout.Controls[i], IMongoJSON) then
+          (Layout.Controls[i] as IMongoJSON).JSON := VarToStr(d[(Layout.Controls[i] as IMongoJSON).MongoCampo]);
+
       end;
     except
       Result := False;
@@ -326,15 +383,17 @@ begin
 
 end;
 
-function TMongoQuery.SelectLayout(Layout: TLayout) : Boolean;
+function TMongoQuery.SelectLayout(Layout: TLayout): Boolean;
 var
-  d : IBSONDocument;
-  i : Integer;
-  Edit : TEditMongo;
-  ComboBox : TComboBoxMongo;
+  d: IBSONDocument;
+  i: Integer;
+  // Edit: TEditMongo;
+  // ComboBox: TComboBoxMongo;
+  suppMongoControl: Boolean;
+  mongoControl: IMongoControl;
 begin
   Result := True;
-  d:=BSON;
+  d := BSON;
   try
     FMongoWireQuery := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
     FMongoWireQuery.Query(FCollection, nil);
@@ -342,18 +401,16 @@ begin
     while FMongoWireQuery.Next(d) do
     begin
       FDataSet.Append;
-      for i:= 0 to Pred(Layout.ControlsCount) do
+      for i := 0 to Pred(Layout.ControlsCount) do
       begin
-        if (Layout.Controls[i] is TEditMongo) then
-        begin
-          Edit := TEditMongo(Layout.Controls[i]);
-          FDataSet.FieldByName(Edit.MongoCampo).AsVariant := d[Edit.MongoCampo];
-        end;
-        if (Layout.Controls[i] is TComboBoxMongo) then
-        begin
-          ComboBox := TComboBoxMongo(Layout.Controls[i]);
-          FDataSet.FieldByName(ComboBox.MongoCampo).AsVariant := d[ComboBox.MongoCampo];
-        end;
+        suppMongoControl := Supports(Layout.Controls[i], IMongoControl);
+        if suppMongoControl then
+          mongoControl := Layout.Controls[i] as IMongoControl;
+        if suppMongoControl then
+          with mongoControl do
+          begin
+            FDataSet.FieldByName(MongoCampo).AsVariant := d[MongoCampo];
+          end;
       end;
       FDataSet.Post;
     end;
@@ -363,350 +420,356 @@ begin
   end;
 end;
 
-procedure TMongoQuery.criarDataSetLayout(Layout : TLayout);
+procedure TMongoQuery.criarDataSetLayout(Layout: TLayout);
 var
-  i : Integer;
-  Edit : TEditMongo;
-  ComboBox : TComboBoxMongo;
+  i: Integer;
+  // Edit: TEditMongo;
+  // ComboBox: TComboBoxMongo;
+  suppMongoControl: Boolean;
+  mongoControl: IMongoControl;
 begin
   FDataSet.Close;
-  FDataSet.FieldDefs.Clear;
-  for i:= 0 to Pred(Layout.ControlsCount) do
+  FDataSet.FieldDefs.clear;
+  for i := 0 to Pred(Layout.ControlsCount) do
   begin
-    if (Layout.Controls[i] is TEditMongo) then
-    begin
-      Edit := TEditMongo(Layout.Controls[i]);
-      case Edit.MongoTipoCampo of
-        Texto: FDataSet.FieldDefs.add(Edit.MongoCampo, ftString, 255);
-        Numerico: FDataSet.FieldDefs.add(Edit.MongoCampo, ftInteger);
-        Moeda : FDataSet.FieldDefs.add(Edit.MongoCampo, ftFloat);
-        DataHora : FDataSet.FieldDefs.add(Edit.MongoCampo, ftString, 50);
-      end;
-    end;
-    if (Layout.Controls[i] is TComboBoxMongo) then
-    begin
-      ComboBox := TComboBoxMongo(Layout.Controls[i]);
-      case ComboBox.MongoTipoCampo of
-        Texto: FDataSet.FieldDefs.add(ComboBox.MongoCampo, ftString, 255);
-        Numerico: FDataSet.FieldDefs.add(ComboBox.MongoCampo, ftInteger);
-        Moeda : FDataSet.FieldDefs.add(ComboBox.MongoCampo, ftFloat);
-        DataHora : FDataSet.FieldDefs.add(ComboBox.MongoCampo, ftString, 50);
-      end;
-    end;
-  end;
-  FDataSet.CreateDataSet;
-end;
-
-procedure TMongoQuery.criarDataSetLista(Lista : TList<String>);
-var
-  I : Integer;
-begin
-  FDataSet.Close;
-  FDataSet.FieldDefs.Clear;
-  for I := 0 to Lista.Count -1 do
-  begin
-    FDataSet.FieldDefs.add(Lista[I], ftString, 255);
-  end;
-  FDataSet.CreateDataSet;
-end;
-
-procedure TMongoQuery.preencherMongoDoc(Layout: TLayout; var MongoDoc: TMongoDocument);
-var
-  i : Integer;
-begin
-  for i:= 0 to Pred(Layout.ControlsCount) do
-  begin
-
-    //Edit Mongo
-    if (Layout.Controls[i] is TEditMongo) then
-    begin
-      if (TEditMongo(Layout.Controls[i]).AutoInc) then
+    suppMongoControl := Supports(Layout.Controls[i], IMongoControl);
+    if suppMongoControl then
+      mongoControl := Layout.Controls[i] as IMongoControl;
+    if suppMongoControl then
+      with mongoControl do
       begin
-        if Trim(TEditMongo(Layout.Controls[i]).Text) = '' then
+        case MongoTipoCampo of
+          Texto:
+            FDataSet.FieldDefs.Add(MongoCampo, ftString, 255);
+          Numerico:
+            FDataSet.FieldDefs.Add(MongoCampo, ftInteger);
+          Moeda:
+            FDataSet.FieldDefs.Add(MongoCampo, ftFloat);
+          DataHora:
+            FDataSet.FieldDefs.Add(MongoCampo, ftString, 50);
+          Booleano:
+            FDataSet.FieldDefs.Add(MongoCampo, ftBoolean);
+
+        end;
+      end;
+  end;
+  FDataSet.CreateDataSet;
+end;
+
+procedure TMongoQuery.criarDataSetLista(Lista: TList<String>);
+var
+  i: Integer;
+begin
+  FDataSet.Close;
+  FDataSet.FieldDefs.clear;
+  for i := 0 to Lista.Count - 1 do
+  begin
+    FDataSet.FieldDefs.Add(Lista[i], ftString, 255);
+  end;
+  FDataSet.CreateDataSet;
+end;
+
+procedure TMongoQuery.preencherMongoDoc(Layout: TLayout; var MongoDoc: TMongoDocument; MongoOperacao: TMongoOperacao);
+var
+  i: Integer;
+  suppIMongoControl: Boolean;
+  mongoControl: IMongoControl;
+  suppIMongoText: Boolean;
+  mongoText: IMongoText;
+begin
+  for i := 0 to Pred(Layout.ControlsCount) do
+  begin
+    suppIMongoControl := Supports(Layout.Controls[i], IMongoControl);
+    if suppIMongoControl then
+      mongoControl := Layout.Controls[i] as IMongoControl;
+    suppIMongoText := Supports(Layout.Controls[i], IMongoText);
+    if suppIMongoText then
+      mongoText := Layout.Controls[i] as IMongoText;
+
+    // Edit Mongo
+    if Supports(Layout.Controls[i], IMongoAutoInc) then
+      with (Layout.Controls[i] as IMongoAutoInc) do
+        if AutoInc and suppIMongoControl then
         begin
-          //--Obtem o Sequence criando um campo "_id_%MongoCampo%"
-          TEditMongo(Layout.Controls[i]).Text := GetSequence(TEditMongo(Layout.Controls[i]).MongoCampo).ToString;
+          { todo: quando esta fazendo select o TEXT esta vazio - na primeira vez; talvez seja necessario checar }
+          if (MongoOperacao = moBrowse) and (trim(Text) = '') then
+            raise Exception.Create('Falta definir o valor do campo chave para buscar os dados')
+          else if (MongoOperacao = moUpdate) and (trim(Text) = '') then
+            raise Exception.Create('Falta definir o valor do campo chave para exclusão')
+          else if (MongoOperacao = moInsert) or (trim(Text) = '') then
+          begin
+            // --Obtem o Sequence criando um campo "_id_%MongoCampo%"
+            Text := GetSequence(mongoControl.MongoCampo).ToString;
+          end;
+        end;
+
+    if suppIMongoControl and suppIMongoText then
+    begin
+      with mongoControl do
+      begin
+        if Supports(Layout.Controls[i], IMongoCampoChave) then
+          with (Layout.Controls[i] as IMongoCampoChave) do
+            if CampoChave and suppIMongoText then
+            begin
+              MongoDoc.addCampoChave(MongoCampo, mongoText.Text, MongoTipoCampo);
+            end;
+        case MongoTipoCampo of
+          Texto:
+            begin
+              MongoDoc.addKey(MongoCampo, mongoText.Text, Texto);
+            end;
+          Numerico:
+            begin
+              MongoDoc.addKey(MongoCampo, mongoText.toNumerico, Numerico);
+            end;
+          Moeda:
+            begin
+              MongoDoc.addKey(MongoCampo, mongoText.toMoeda, Moeda);
+            end;
+          DataHora:
+            begin
+              MongoDoc.addKey(MongoCampo, mongoText.toDataHora, DataHora);
+            end;
+          Booleano:
+            begin
+              MongoDoc.addKey(MongoCampo, StrToBoolDef(mongoText.Text, False), Booleano);
+            end;
         end;
       end;
-
-      if (TEditMongo(Layout.Controls[i]).CampoChave) then
-      begin
-        MongoDoc.addCampoChave(TEditMongo(Layout.Controls[i]).MongoCampo,TEditMongo(Layout.Controls[i]).Text, TEditMongo(Layout.Controls[i]).MongoTipoCampo);
-      end;
-
-      case TEditMongo(Layout.Controls[i]).MongoTipoCampo of
-        Texto :
-          begin
-            MongoDoc.addKey(TEditMongo(Layout.Controls[i]).MongoCampo, TEditMongo(Layout.Controls[i]).Text, Texto);
-          end;
-        Numerico :
-          begin
-            MongoDoc.addKey(TEditMongo(Layout.Controls[i]).MongoCampo, TEditMongo(Layout.Controls[i]).toNumerico, Numerico);
-          end;
-        Moeda :
-          begin
-            MongoDoc.addKey(TEditMongo(Layout.Controls[i]).MongoCampo, TEditMongo(Layout.Controls[i]).toMoeda, Moeda);
-          end;
-        DataHora :
-          begin
-            MongoDoc.addKey(TEditMongo(Layout.Controls[i]).MongoCampo, TEditMongo(Layout.Controls[i]).toDataHora, DataHora);
-          end;
-      end;
-    end;
-
-    //Mongo ComboBox
-    if (Layout.Controls[i] is TComboBoxMongo) then
-    begin
-      case TComboBoxMongo(Layout.Controls[i]).MongoTipoCampo of
-        Texto :
-          begin
-            MongoDoc.addKey(TComboBoxMongo(Layout.Controls[i]).MongoCampo, TComboBoxMongo(Layout.Controls[i]).Text, Texto);
-          end;
-        Numerico :
-          begin
-            MongoDoc.addKey(TComboBoxMongo(Layout.Controls[i]).MongoCampo, TComboBoxMongo(Layout.Controls[i]).toNumerico, Numerico);
-          end;
-        Moeda :
-          begin
-            MongoDoc.addKey(TComboBoxMongo(Layout.Controls[i]).MongoCampo, TComboBoxMongo(Layout.Controls[i]).toMoeda, Moeda);
-          end;
-        DataHora :
-          begin
-            MongoDoc.addKey(TComboBoxMongo(Layout.Controls[i]).MongoCampo, TComboBoxMongo(Layout.Controls[i]).toDataHora, DataHora);
-          end;
-      end;
-    end;
-
-    //Mongo Image
-    if (Layout.Controls[i] is TImageMongo) then
-    begin
-      MongoDoc.addKey(TImageMongo(Layout.Controls[i]).MongoCampo, TImageMongo(Layout.Controls[i]).getDataImage, Texto);
-    end;
-
+    end
+    else
+      // Mongo Image
+      if Supports(Layout.Controls[i], IMongoBitmap) then
+        with Layout.Controls[i] as IMongoBitmap do
+          MongoDoc.addKey(MongoCampo, getDataImage, Texto)
+      else if Supports(Layout.Controls[i], IMongoChecked) then // checked
+        with (Layout.Controls[i] as IMongoChecked) do
+          MongoDoc.addKey(MongoCampo, Checked, Booleano)
+     { else if Supports(Layout.Controls[i], IMongoJSON) then
+        with Layout.Controls[i] as IMongoJSON do
+          MongoDoc.addKey(MongoCampo, JSON, Texto)
+      }
   end;
 end;
 
-function TMongoQuery.GetSequence(AMongoCampo: string) : Int64;
+function TMongoQuery.GetSequence(AMongoCampo: string): Int64;
 Var
-  d, dChave, e: IBSONDocument; //Obj BSON
-  j: TJSONObject; //Obj JSON
+  d, dChave, e: IBSONDocument; // Obj BSON
+  j: TJSONObject; // Obj JSON
   sField: TStringBuilder;
-  sCollectionSeq, sCollectionField,
-  sComand_Save, sComand_Modify: string;
+  sCollectionSeq, sCollectionField, sComand_Save, sComand_Modify: string;
   iRetorno: Int64;
-  R : TStringList;
+  R: TStringList;
 begin
-     //-- Gerando o Sequence para o AutoIncremento
-     sField := TStringBuilder.Create;
-     j := TJSONObject.Create;
-     try
-        sField.Clear;
-        sField.Append('_id_').Append(AMongoCampo);
+  // -- Gerando o Sequence para o AutoIncremento
+  sField := TStringBuilder.Create;
+  j := TJSONObject.Create;
+  try
+    sField.clear;
+    sField.Append('_id_').Append(AMongoCampo);
 
-        sCollectionSeq := '_sequence';
-        sCollectionField := '_id';
+    sCollectionSeq := '_sequence';
+    sCollectionField := '_id';
 
-        sComand_Save := '{ findAndModify: "'+sCollectionSeq+'", query: { '+sCollectionField+': "'+FCollection+'" }, update: {'+sCollectionField+': "'+FCollection+'", '+sField.ToString+': 0 }, upsert:true }';
-        sComand_Modify := '{ findAndModify: "'+sCollectionSeq+'", query: { '+sCollectionField+': "'+FCollection+'" }, update: { $inc: { '+sField.ToString+': 1 } }, new:true }';
+    sComand_Save := '{ findAndModify: "' + sCollectionSeq + '", query: { ' + sCollectionField + ': "' + FCollection + '" }, update: {' +
+      sCollectionField + ': "' + FCollection + '", ' + sField.ToString + ': 0 }, upsert:true }';
+    sComand_Modify := '{ findAndModify: "' + sCollectionSeq + '", query: { ' + sCollectionField + ': "' + FCollection + '" }, update: { $inc: { ' +
+      sField.ToString + ': 1 } }, new:true }';
 
-        j.AddPair(sCollectionField, TJSONString.Create(FCollection));
-        dChave := JsonToBson(j.ToJSON);
+    j.AddPair(sCollectionField, TJSONString.Create(FCollection));
+    dChave := JsonToBson(j.ToJSON);
 
-        try
-           d := FMongoConexao.FMongoWire.Get(sCollectionSeq, dChave);
-           iRetorno := StrToInt64(VarToStr(d[sField.ToString]));
-        except
-              d := JsonToBson(sComand_Save);
-              e := FMongoConexao.FMongoWire.RunCommand(d);
-        end;
-        try
-           d := JsonToBson(sComand_Modify);
-           e := FMongoConexao.FMongoWire.RunCommand(d);
+    try
+      d := FMongoConexao.FMongoWire.Get(sCollectionSeq, dChave);
+      iRetorno := StrToInt64(VarToStr(d[sField.ToString]));
+    except
+      d := JsonToBson(sComand_Save);
+      e := FMongoConexao.FMongoWire.RunCommand(d);
+    end;
+    try
+      d := JsonToBson(sComand_Modify);
+      e := FMongoConexao.FMongoWire.RunCommand(d);
 
-           Result := StrToInt(VarToStr(BSON(e['value'])[sField.ToString]));
+      Result := StrToInt(VarToStr(BSON(e['value'])[sField.ToString]));
 
-        except
-              Result := -1;
-              raise EMongoException.Create('Mongo: não foi possível gerar o AutoIncremento.');
-        end;
-     finally
-            sField.Free;
-            j.Free;
-     end;
+    except
+      Result := -1;
+      raise EMongoException.Create('Mongo: não foi possível gerar o AutoIncremento.');
+    end;
+  finally
+    sField.Free;
+    j.Free;
+  end;
 end;
 
-procedure TMongoQuery.buscaFoneticaDataSet(Texto, Index, Campo : String);
+procedure TMongoQuery.buscaFoneticaDataSet(Texto, Index, Campo: String);
 var
-  d : IBSONDocument;
-  q : TMongoWireQuery;
-  Lista : TList<String>;
+  d: IBSONDocument;
+  q: TMongoWireQuery;
+  Lista: TList<String>;
 begin
-   d := BSON;
-   q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
-   Lista := TList<String>.Create;
-   try
-     //O index já deve vir com '$'
-     Lista.Add(Campo);
-     criarDataSetLista(Lista);
-     q.Query(FCollection,BSON([Index, BSON(['$search', Texto])]));
-     FDataSet.Append;
-     while q.Next(d) do
-     begin
-       FDataSet.FieldByName(Campo).AsVariant := d[Campo];
-     end;
-     FDataSet.Post;
-   finally
+  d := BSON;
+  q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
+  Lista := TList<String>.Create;
+  try
+    // O index já deve vir com '$'
+    Lista.Add(Campo);
+    criarDataSetLista(Lista);
+    q.Query(FCollection, BSON([Index, BSON(['$search', Texto])]));
+    FDataSet.Append;
+    while q.Next(d) do
+    begin
+      FDataSet.FieldByName(Campo).AsVariant := d[Campo];
+    end;
+    FDataSet.Post;
+  finally
     q.Destroy;
     Lista.Destroy;
-   end;
+  end;
 end;
 
-procedure TMongoQuery.buscaConteudo(Texto, Campo : String);
+procedure TMongoQuery.buscaConteudo(Texto, Campo: String);
 var
-  d : IBSONDocument;
-  q : TMongoWireQuery;
-  Lista : TList<String>;
-  I: Integer;
+  d: IBSONDocument;
+  q: TMongoWireQuery;
+  Lista: TList<String>;
+  i: Integer;
 begin
-   d := BSON;
-   q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
-   Lista := TList<String>.Create;
-   try
-     Lista.Add(Campo);
-     criarDataSetLista(Lista);
-     q.Query(FCollection,BSON([Campo, BSON(['$regex', bsonRegExPrefix+'/^'+Texto, '$options' , 'm'])]));
+  d := BSON;
+  q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
+  Lista := TList<String>.Create;
+  try
+    Lista.Add(Campo);
+    criarDataSetLista(Lista);
+    q.Query(FCollection, BSON([Campo, BSON(['$regex', bsonRegExPrefix + '/^' + Texto, '$options', 'm'])]));
 
-     FDataSet.DisableControls;
-     for I := 0 to 1000 do
-     begin
-       if q.Next(d) then
-       begin
+    FDataSet.DisableControls;
+    for i := 0 to 1000 do
+    begin
+      if q.Next(d) then
+      begin
         FDataSet.Append;
         FDataSet.FieldByName(Campo).AsVariant := d[Campo];
         FDataSet.Post;
-       end;
-     end;
-     {while q.Next(d) do
-     begin
-       FDataSet.Append;
-       FDataSet.FieldByName(Campo).AsVariant := d[Campo];
-       FDataSet.Post;
-     end;}
-     FDataSet.EnableControls;
-     FDataSet.First;
-   finally
+      end;
+    end;
+    { while q.Next(d) do
+      begin
+      FDataSet.Append;
+      FDataSet.FieldByName(Campo).AsVariant := d[Campo];
+      FDataSet.Post;
+      end; }
+    FDataSet.EnableControls;
+    FDataSet.First;
+  finally
     q.Destroy;
     Lista.Destroy;
-   end;
+  end;
 end;
 
-function TMongoQuery.getCamposJsonString(Json, value:String): String;
+function TMongoQuery.getCamposJsonString(JSON, Value: String): String;
 var
-  d : IBSONDocument;
+  d: IBSONDocument;
 begin
-  d := JsonToBson(Json);
-  Result := d[value];
+  d := JsonToBson(JSON);
+  Result := d[Value];
 end;
 
 function TMongoQuery.WideStringToString(const ws: WideString; codePage: Word): AnsiString;
 var
-  l: integer;
+  l: Integer;
 begin
   if ws = '' then
     Result := ''
   else
   begin
-    l := WideCharToMultiByte(codePage,
-      WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
-      @ws[1], - 1, nil, 0, nil, nil);
+    l := WideCharToMultiByte(codePage, WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR, @ws[1], -1, nil, 0, nil, nil);
     SetLength(Result, l - 1);
     if l > 1 then
-      WideCharToMultiByte(codePage,
-        WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
-        @ws[1], - 1, @Result[1], l - 1, nil, nil);
+      WideCharToMultiByte(codePage, WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR, @ws[1], -1, @Result[1], l - 1, nil, nil);
   end;
 end;
 
-function TMongoQuery.Insert(aJson : String) : Boolean;
+function TMongoQuery.Insert(aJson: String): Boolean;
 var
-  d : IBSONDocument;
-begin
-   d := JsonToBson(aJson);
-   try
-    FMongoConexao.FMongoWire.Insert(Self.FCollection, d);
-    Result := True;
-   except
-    Result := false;
-    raise EMongoException.Create('Mongo: não foi possível inserir o Documento');
-   end;
-end;
-
-function TMongoQuery.Update(aJsonWhere : String; aJsonDoc : String) : Boolean;
-var
-  d, r : IBSONDocument;
-begin
-   d := JsonToBson(aJsonDoc);
-   r := JsonToBson(aJsonWhere);
-   try
-    FMongoConexao.FMongoWire.Update(Self.FCollection, r, d);
-    Result := True;
-   except
-    Result := false;
-    raise EMongoException.Create('Mongo: não foi possível atualizar o Documento');
-   end;
-end;
-
-function TMongoQuery.Remove(aJson : String) : Boolean;
-var
-  d : IBSONDocument;
-begin
-   d := JsonToBson(aJson);
-   try
-    FMongoConexao.FMongoWire.Delete(Self.FCollection, d);
-    Result := True;
-   except
-    Result := false;
-    raise EMongoException.Create('Mongo: não foi possível remover o Documento');
-   end;
-
-end;
-
-function TMongoQuery.Find(aJson : String) : String;
-var
-  d, r : IBSONDocument;
-  q : TMongoWireQuery;
+  d: IBSONDocument;
 begin
   d := JsonToBson(aJson);
-  r := BSON;
+  try
+    FMongoConexao.FMongoWire.Insert(Self.FCollection, d);
+    Result := True;
+  except
+    Result := False;
+    raise EMongoException.Create('Mongo: não foi possível inserir o Documento');
+  end;
+end;
+
+function TMongoQuery.Update(aJsonWhere: String; aJsonDoc: String): Boolean;
+var
+  d, R: IBSONDocument;
+begin
+  d := JsonToBson(aJsonDoc);
+  R := JsonToBson(aJsonWhere);
+  try
+    FMongoConexao.FMongoWire.Update(Self.FCollection, R, d);
+    Result := True;
+  except
+    Result := False;
+    raise EMongoException.Create('Mongo: não foi possível atualizar o Documento');
+  end;
+end;
+
+function TMongoQuery.Remove(aJson: String): Boolean;
+var
+  d: IBSONDocument;
+begin
+  d := JsonToBson(aJson);
+  try
+    FMongoConexao.FMongoWire.Delete(Self.FCollection, d);
+    Result := True;
+  except
+    Result := False;
+    raise EMongoException.Create('Mongo: não foi possível remover o Documento');
+  end;
+
+end;
+
+function TMongoQuery.Find(aJson: String): String;
+var
+  d, R: IBSONDocument;
+  q: TMongoWireQuery;
+begin
+  d := JsonToBson(aJson);
+  R := BSON;
   q := TMongoWireQuery.Create(FMongoConexao.FMongoWire);
   try
     q.Query(Self.FCollection, d);
-    while q.Next(r) do
+    while q.Next(R) do
     begin
-      Result := Result + BsonToJson(r) + ',';
+      Result := Result + BsonToJson(R) + ',';
     end;
-    Result := Copy(Result, 1, Length(Result)-1);
+    Result := Copy(Result, 1, Length(Result) - 1);
   except
-    on E : Exception do
-     begin
-      Result := E.Message;
-     end;
+    on e: Exception do
+    begin
+      Result := e.Message;
+    end;
   end;
 end;
 
-function TMongoQuery.Command(aJson : String) : String;
+function TMongoQuery.Command(aJson: String): String;
 var
-  d, r : IBSONDocument;
+  d, R: IBSONDocument;
 begin
   d := JsonToBson(aJson);
   try
-    r := FMongoConexao.FMongoWire.RunCommand(d);
-    Result := BsonToJson(r);
+    R := FMongoConexao.FMongoWire.RunCommand(d);
+    Result := BsonToJson(R);
   except
-    on E : Exception do
-     begin
-      Result := E.Message;
-     end;
+    on e: Exception do
+    begin
+      Result := e.Message;
+    end;
   end;
 end;
 

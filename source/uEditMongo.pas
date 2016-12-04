@@ -1,31 +1,59 @@
+{ *************************************************************************** }
+
+{ Autor: }
+{ Data:  04/12/2016 }
+{ Resenha:
+  { *************************************************************************** }
+{ Licença segue a mesma estabelecida no código original determinada pelo seu }
+{ autor }
+{ }
+{ *************************************************************************** }
+{
+
+  Alterações:
+
+}
+
 unit uEditMongo;
 
 interface
 
-uses
-  System.SysUtils, System.Classes, FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  FMX.Controls.Presentation, FMX.Edit, uMongo_Tipificacoes;
+{$I mongo.inc}
+{$IFNDEF FMX}
+  'codigo não pode ser utilizado em projetos VCL}
+{$ENDIF}
+  uses System.SysUtils, System.Classes, FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Edit, mongo.interf, mongo.Types,
+  FMX.Controls.Presentation, uMongo_Tipificacoes;
 
 type
-  TEditMongo = class(TEdit)
+  TEditMongo = class(TEdit, IMongoAutoInc, IMongoText, IMongoControl, IMongoCampoChave)
   private
     FMongoCampo: String;
     FMongoTipoCampo: TCampo;
     FAutoInc: Boolean;
     FCampoChave: Boolean;
+    function GetMongoCampo: String;
+    procedure SetMongoCampo(const Value: String);
+    function GetAutoInc: Boolean;
+    procedure SetAutoInc(const Value: Boolean);
+    function GetMongoTipoCampo: TCampo;
+    procedure SetMongoTipoCampo(const Value: TCampo);
+    function GetCampoChave: Boolean;
+    procedure SetCampoChave(const Value: Boolean);
   protected
 
   public
     constructor Create(AOwner: TComponent); override;
-    function toNumerico : Integer;
-    function toMoeda : Currency;
-    function toDataHora : TDateTime;
+    function toNumerico: Integer;
+    function toMoeda: Currency;
+    function toDataHora: TDateTime;
+    function toBooleano: Boolean;
 
   published
-    property MongoTipoCampo : TCampo  read FMongoTipoCampo write FMongoTipoCampo default TCampo.Texto;
-    property MongoCampo : String read FMongoCampo write FMongoCampo;
-    property AutoInc : Boolean read FAutoInc write FAutoInc;
-    property CampoChave : Boolean read FCampoChave write FCampoChave;
+    property MongoTipoCampo: TCampo read GetMongoTipoCampo write SetMongoTipoCampo default TCampo.Texto;
+    property MongoCampo: String read GetMongoCampo write SetMongoCampo;
+    property AutoInc: Boolean read GetAutoInc write SetAutoInc;
+    property CampoChave: Boolean read GetCampoChave write SetCampoChave;
   end;
 
 procedure Register;
@@ -44,31 +72,77 @@ begin
   inherited Create(AOwner);
 end;
 
+function TEditMongo.GetAutoInc: Boolean;
+begin
+  result := FAutoInc;
+end;
+
+function TEditMongo.GetCampoChave: Boolean;
+begin
+  result := FCampoChave;
+end;
+
+function TEditMongo.GetMongoCampo: String;
+begin
+  result := FMongoCampo;
+end;
+
+function TEditMongo.GetMongoTipoCampo: TCampo;
+begin
+  result := FMongoTipoCampo;
+end;
+
+procedure TEditMongo.SetAutoInc(const Value: Boolean);
+begin
+  FAutoInc := Value;
+end;
+
+procedure TEditMongo.SetCampoChave(const Value: Boolean);
+begin
+  FCampoChave := Value;
+end;
+
+procedure TEditMongo.SetMongoCampo(const Value: String);
+begin
+  FMongoCampo := Value;
+end;
+
+procedure TEditMongo.SetMongoTipoCampo(const Value: TCampo);
+begin
+  FMongoTipoCampo := Value;
+end;
+
+function TEditMongo.toBooleano: Boolean;
+begin
+  result := StrToBoolDef(self.Text, false);
+end;
+
 function TEditMongo.toDataHora: TDateTime;
 begin
-     try
-        Result := TTipificacao.toDataHora(Self.Text);
-     except
-           raise Exception.Create('O Valor do Campo ' + Self.FMongoCampo + ' é Inválido');
-     end;
+  try
+    result := TTipificacao.toDataHora(self.Text);
+  except
+    raise Exception.Create('O Valor do Campo ' + self.FMongoCampo + ' é Inválido');
+  end;
 end;
 
 function TEditMongo.toMoeda: Currency;
 begin
-     try
-        Result := TTipificacao.toMoeda(Self.Text);
-     except
-           raise Exception.Create('O Valor do Campo ' + Self.FMongoCampo + ' é Inválido');
-     end;
+  try
+    result := TTipificacao.toMoeda(self.Text);
+  except
+    raise Exception.Create('O Valor do Campo ' + self.FMongoCampo + ' é Inválido');
+  end;
 end;
 
 function TEditMongo.toNumerico: Integer;
 begin
-     try
-        Result := TTipificacao.toNumerico(Self.Text);
-     except
-           raise Exception.Create('O Valor do Campo ' + Self.FMongoCampo + ' é Inválido');
-     end;
+  try
+    result := TTipificacao.toNumerico(self.Text);
+  except
+    raise Exception.Create('O Valor do Campo ' + self.FMongoCampo + ' é Inválido');
+  end;
 end;
 
 end.
+

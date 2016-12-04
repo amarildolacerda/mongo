@@ -35,6 +35,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_Define>FMX;$(DCC_Define)</DCC_Define>
         <DCC_BplOutput>.\package</DCC_BplOutput>
         <DCC_DcpOutput>.\package</DCC_DcpOutput>
         <SanitizedProjectName>MongoFMX</SanitizedProjectName>
@@ -99,14 +100,12 @@
         <DCCReference Include="source\uAction_MongoQuery.pas"/>
         <DCCReference Include="source\uEditMongo.pas"/>
         <DCCReference Include="source\uLMongoListBox.pas"/>
-        <DCCReference Include="source\uMongo_Tipificacoes.pas"/>
-        <DCCReference Include="source\uMongoDocument.pas"/>
         <DCCReference Include="source\uMongoListBox.pas"/>
         <DCCReference Include="source\uMongoListBoxItem.pas"/>
-        <DCCReference Include="source\uMongoQuery.pas"/>
         <DCCReference Include="source\uComboBoxMongo.pas"/>
         <DCCReference Include="source\uCheckBoxMongo.pas"/>
         <DCCReference Include="source\uGroupBoxMongo.pas"/>
+        <DCCReference Include="source\uImageMongo.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -128,6 +127,7 @@
                     <Source Name="MainSource">MongoFMX.dpk</Source>
                 </Source>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="C:\Git\Mongo\package\MongoFMX.bpl">Componente para MongoRAD</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k240.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp240.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
@@ -159,7 +159,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -498,16 +507,7 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
